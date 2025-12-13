@@ -1,0 +1,120 @@
+Container
+.orders-dashboard {
+  padding: 1.5rem;
+  font-family: sans-serif;
+}
+
+/* Table */
+.orders-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db; /* gray-300 */
+}
+
+/* Table Head */
+.orders-dashboard thead tr {
+  background-color: #f3f4f6; /* gray-100 */
+}
+
+.orders-dashboard th {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Table Body */
+.orders-dashboard td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Inputs inside table */
+.orders-dashboard input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.orders-dashboard input[type="number"] {
+  width: 4rem;
+  text-align: center;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+}
+
+/* Select dropdown */
+.orders-dashboard select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+/* Buttons */
+.orders-dashboard button {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.orders-dashboard button:hover {
+  background-color: #2563eb; /* darker blue */
+}
+
+.orders-dashboard button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .orders-dashboard table,
+  .orders-dashboard thead,
+  .orders-dashboard tbody,
+  .orders-dashboard th,
+  .orders-dashboard td,
+  .orders-dashboard tr {
+    display: block;
+  }
+
+  .orders-dashboard thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .orders-dashboard td {
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+
+  .orders-dashboard td::before {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .orders-dashboard td:nth-of-type(1)::before { content: "Name"; }
+  .orders-dashboard td:nth-of-type(2)::before { content: "Phone"; }
+  .orders-dashboard td:nth-of-type(3)::before { content: "City"; }
+  .orders-dashboard td:nth-of-type(4)::before { content: "Quantity"; }
+  .orders-dashboard td:nth-of-type(5)::before { content: "Total"; }
+  .orders-dashboard td:nth-of-type(6)::before { content: "Status"; }
+  .orders-dashboard td:nth-of-type(7)::before { content: "Confirmed"; }
+  .orders-dashboard td:nth-of-type(8)::before { content: "Canceled"; }
+  .orders-dashboard td:nth-of-type(9)::before { content: "Returned"; }
+  .orders-dashboard td:nth-of-type(10)::before { content: "Delivered"; }
+  .orders-dashboard td:nth-of-type(11)::before { content: "Progress"; }
+  .orders-dashboard td:nth-of-type(12)::before { content: "Actions"; }
+}
