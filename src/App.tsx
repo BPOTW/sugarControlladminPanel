@@ -72,7 +72,7 @@ const OrdersDashboard = () => {
 
   useEffect(() => {
     // Initialize Socket.IO connection
-    const socket = io("http://localhost:5050", {
+    const socket = io("https://sugarcontrollerbackend-production.up.railway.app:5050", {
       transports: ["websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -110,8 +110,8 @@ const OrdersDashboard = () => {
     const fetchInitialData = async () => {
       try {
         const [ordersRes, statsRes] = await Promise.all([
-          axios.get<Order[]>("http://localhost:5050/orders"),
-          axios.get<Stats>("http://localhost:5050/stats"),
+          axios.get<Order[]>("https://sugarcontrollerbackend-production.up.railway.app:5050/orders"),
+          axios.get<Stats>("https://sugarcontrollerbackend-production.up.railway.app:5050/stats"),
         ]);
         setOrders(ordersRes.data);
         setStats(statsRes.data);
@@ -150,7 +150,7 @@ const OrdersDashboard = () => {
     };
 
     try {
-      await axios.post("http://localhost:5050/stats", calculatedStats);
+      await axios.post("https://sugarcontrollerbackend-production.up.railway.app:5050/stats", calculatedStats);
       setStats(calculatedStats);
     } catch (err) {
       console.error("Failed to save stats:", err);
@@ -169,7 +169,7 @@ const OrdersDashboard = () => {
     if (!updatedFields) return;
 
     try {
-      await axios.put(`http://localhost:5050/orders/${id}`, updatedFields);
+      await axios.put(`https://sugarcontrollerbackend-production.up.railway.app:5050/orders/${id}`, updatedFields);
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? { ...order, ...updatedFields } : order))
       );
@@ -214,7 +214,7 @@ const OrdersDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading orders...</p>
@@ -224,7 +224,7 @@ const OrdersDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
@@ -256,7 +256,7 @@ const OrdersDashboard = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-600 text-sm font-medium mb-1">Total Orders</p>
@@ -265,7 +265,7 @@ const OrdersDashboard = () => {
                 <Package className="w-10 h-10 text-blue-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
+            <div className="bg-linear-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-600 text-sm font-medium mb-1">Pending</p>
@@ -274,7 +274,7 @@ const OrdersDashboard = () => {
                 <Clock className="w-10 h-10 text-yellow-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-600 text-sm font-medium mb-1">Confirmed</p>
@@ -283,7 +283,7 @@ const OrdersDashboard = () => {
                 <CheckCircle className="w-10 h-10 text-purple-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-600 text-sm font-medium mb-1">Delivered</p>
@@ -296,7 +296,7 @@ const OrdersDashboard = () => {
 
           {/* Financial Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+            <div className="bg-linear-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-emerald-600 text-sm font-medium mb-1">Total Sales</p>
@@ -305,7 +305,7 @@ const OrdersDashboard = () => {
                 <DollarSign className="w-10 h-10 text-emerald-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+            <div className="bg-linear-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-orange-600 text-sm font-medium mb-1">Returns</p>
@@ -314,7 +314,7 @@ const OrdersDashboard = () => {
                 <RefreshCw className="w-10 h-10 text-orange-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+            <div className="bg-linear-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-red-600 text-sm font-medium mb-1">Losses</p>
@@ -323,7 +323,7 @@ const OrdersDashboard = () => {
                 <TrendingDown className="w-10 h-10 text-red-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+            <div className="bg-linear-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-teal-600 text-sm font-medium mb-1">Profit</p>
