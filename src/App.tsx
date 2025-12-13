@@ -72,7 +72,7 @@ const OrdersDashboard = () => {
 
   useEffect(() => {
     // Initialize Socket.IO connection
-    const socket = io("https://sugarcontrollerbackend-production.up.railway.app:5050", {
+    const socket = io("https://sugarcontrollerbackend-production.up.railway.app", {
       transports: ["websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -110,8 +110,8 @@ const OrdersDashboard = () => {
     const fetchInitialData = async () => {
       try {
         const [ordersRes, statsRes] = await Promise.all([
-          axios.get<Order[]>("https://sugarcontrollerbackend-production.up.railway.app:5050/orders"),
-          axios.get<Stats>("https://sugarcontrollerbackend-production.up.railway.app:5050/stats"),
+          axios.get<Order[]>("https://sugarcontrollerbackend-production.up.railway.app/orders"),
+          axios.get<Stats>("https://sugarcontrollerbackend-production.up.railway.app/stats"),
         ]);
         setOrders(ordersRes.data);
         setStats(statsRes.data);
@@ -150,7 +150,7 @@ const OrdersDashboard = () => {
     };
 
     try {
-      await axios.post("https://sugarcontrollerbackend-production.up.railway.app:5050/stats", calculatedStats);
+      await axios.post("https://sugarcontrollerbackend-production.up.railway.app/stats", calculatedStats);
       setStats(calculatedStats);
     } catch (err) {
       console.error("Failed to save stats:", err);
@@ -169,7 +169,7 @@ const OrdersDashboard = () => {
     if (!updatedFields) return;
 
     try {
-      await axios.put(`https://sugarcontrollerbackend-production.up.railway.app:5050/orders/${id}`, updatedFields);
+      await axios.put(`https://sugarcontrollerbackend-production.up.railway.app/orders/${id}`, updatedFields);
       setOrders((prev) =>
         prev.map((order) => (order._id === id ? { ...order, ...updatedFields } : order))
       );
