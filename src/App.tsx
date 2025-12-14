@@ -16,7 +16,9 @@ import {
   Check,
   DollarSign,
   TrendingDown,
-  Activity
+  Activity,
+  Eye,
+  Users
 } from "lucide-react";
 
 type Order = {
@@ -39,6 +41,9 @@ type Order = {
 };
 
 type Stats = {
+  liveViews: number;
+  totalViews: number;
+  uniqueVisitors: number;
   total: number;
   pending: number;
   confirmed: number;
@@ -58,6 +63,9 @@ const OrdersDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [stats, setStats] = useState<Stats>({
+    liveViews: 0,
+    totalViews: 0,
+    uniqueVisitors: 0,
     total: 0,
     pending: 0,
     confirmed: 0,
@@ -106,6 +114,15 @@ const OrdersDashboard = () => {
       setStats(updatedStats);
     });
 
+    // Listen for live views updates
+    socket.on("liveViewsUpdated", ({ liveViews, uniqueVisitors }: { liveViews: number; uniqueVisitors: number }) => {
+      setStats((prev) => ({
+        ...prev,
+        liveViews,
+        uniqueVisitors
+      }));
+    });
+
     // Initial data fetch
     const fetchInitialData = async () => {
       try {
@@ -124,6 +141,16 @@ const OrdersDashboard = () => {
 
     fetchInitialData();
 
+    // Track page view when dashboard loads
+    const trackView = async () => {
+      try {
+        await axios.post("https://sugarcontrollerbackend-production.up.railway.app/track-view");
+      } catch (err) {
+        console.error("Failed to track view:", err);
+      }
+    };
+    trackView();
+
     // Cleanup on unmount
     return () => {
       socket.disconnect();
@@ -132,6 +159,9 @@ const OrdersDashboard = () => {
 
   const calculateAndSaveStats = async () => {
     const calculatedStats: Stats = {
+      liveViews: stats.liveViews,
+      totalViews: stats.totalViews,
+      uniqueVisitors: stats.uniqueVisitors,
       total: orders.length,
       pending: orders.filter(o => o.orderStatus === "pending").length,
       confirmed: orders.filter(o => o.orderStatus === "confirmed").length,
@@ -214,7 +244,7 @@ const OrdersDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading orders...</p>
@@ -224,7 +254,7 @@ const OrdersDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
@@ -254,9 +284,43 @@ const OrdersDashboard = () => {
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Views Stats Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-indigo-600 text-sm font-medium mb-1">Live Views</p>
+                  <p className="text-2xl font-bold text-indigo-900">{stats.liveViews}</p>
+                  <p className="text-xs text-indigo-600 mt-1">Currently viewing</p>
+                </div>
+                <Eye className="w-10 h-10 text-indigo-600 opacity-80" />
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl p-4 border border-violet-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-violet-600 text-sm font-medium mb-1">Total Views</p>
+                  <p className="text-2xl font-bold text-violet-900">{stats.totalViews.toLocaleString()}</p>
+                  <p className="text-xs text-violet-600 mt-1">All time</p>
+                </div>
+                <Activity className="w-10 h-10 text-violet-600 opacity-80" />
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 rounded-xl p-4 border border-fuchsia-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-fuchsia-600 text-sm font-medium mb-1">Unique Visitors</p>
+                  <p className="text-2xl font-bold text-fuchsia-900">{stats.uniqueVisitors.toLocaleString()}</p>
+                  <p className="text-xs text-fuchsia-600 mt-1">Distinct users</p>
+                </div>
+                <Users className="w-10 h-10 text-fuchsia-600 opacity-80" />
+              </div>
+            </div>
+          </div>
+
+          {/* Order Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-600 text-sm font-medium mb-1">Total Orders</p>
@@ -265,7 +329,7 @@ const OrdersDashboard = () => {
                 <Package className="w-10 h-10 text-blue-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-yellow-600 text-sm font-medium mb-1">Pending</p>
@@ -274,7 +338,7 @@ const OrdersDashboard = () => {
                 <Clock className="w-10 h-10 text-yellow-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-600 text-sm font-medium mb-1">Confirmed</p>
@@ -283,7 +347,7 @@ const OrdersDashboard = () => {
                 <CheckCircle className="w-10 h-10 text-purple-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-600 text-sm font-medium mb-1">Delivered</p>
@@ -296,7 +360,7 @@ const OrdersDashboard = () => {
 
           {/* Financial Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            <div className="bg-linear-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-emerald-600 text-sm font-medium mb-1">Total Sales</p>
@@ -305,7 +369,7 @@ const OrdersDashboard = () => {
                 <DollarSign className="w-10 h-10 text-emerald-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-orange-600 text-sm font-medium mb-1">Returns</p>
@@ -314,7 +378,7 @@ const OrdersDashboard = () => {
                 <RefreshCw className="w-10 h-10 text-orange-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-red-600 text-sm font-medium mb-1">Losses</p>
@@ -323,7 +387,7 @@ const OrdersDashboard = () => {
                 <TrendingDown className="w-10 h-10 text-red-600 opacity-80" />
               </div>
             </div>
-            <div className="bg-linear-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-teal-600 text-sm font-medium mb-1">Profit</p>
