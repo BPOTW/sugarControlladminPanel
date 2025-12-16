@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import axios from "axios";
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Package, 
-  TrendingUp, 
-  Clock, 
+import {
+  Search,
+  Filter,
+  Download,
+  Package,
+  TrendingUp,
+  Clock,
   CheckCircle,
   XCircle,
   RefreshCw,
@@ -20,6 +20,7 @@ import {
   Eye,
   Users
 } from "lucide-react";
+import { getSocket } from "./socketutils";
 
 type Order = {
   _id: string;
@@ -78,18 +79,16 @@ const OrdersDashboard = () => {
   });
   const [isConnected, setIsConnected] = useState(false);
 
+
   useEffect(() => {
-    // Initialize Socket.IO connection
-    const socket = io("https://sugarcontrollerbackend-production.up.railway.app", {
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 10,
-    });
+    // Get socket instance
+    const socket = getSocket();
 
     socket.on("connect", () => {
-      console.log("Connected to server");
+      console.log("Connected to server as admin");
       setIsConnected(true);
+      // Identify as admin client
+      socket.emit("identify", { type: "admin" });
     });
 
     socket.on("disconnect", () => {
@@ -141,19 +140,16 @@ const OrdersDashboard = () => {
 
     fetchInitialData();
 
-    // Track page view when dashboard loads
-    const trackView = async () => {
-      try {
-        await axios.post("https://sugarcontrollerbackend-production.up.railway.app/track-view");
-      } catch (err) {
-        console.error("Failed to track view:", err);
-      }
-    };
-    trackView();
-
     // Cleanup on unmount
     return () => {
-      socket.disconnect();
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("orderUpdated");
+      socket.off("newOrder");
+      socket.off("statsUpdated");
+      socket.off("liveViewsUpdated");
+      // Don't disconnect, just remove listeners
+      // socket.disconnect();
     };
   }, []);
 
@@ -245,9 +241,9 @@ const OrdersDashboard = () => {
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInDays < 7) return `${diffInDays}d ago`;
-    
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
       year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
     });
@@ -272,7 +268,7 @@ const OrdersDashboard = () => {
   };
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = 
+    const matchesSearch =
       order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.phone.includes(searchTerm) ||
       order.city.toLowerCase().includes(searchTerm.toLowerCase());
@@ -308,7 +304,7 @@ const OrdersDashboard = () => {
               <p className="text-gray-500">Manage and track all customer orders</p>
             </div>
             <div className="flex gap-3">
-              <button 
+              <button
                 onClick={refreshData}
                 disabled={isRefreshing}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-md"
