@@ -475,6 +475,7 @@ const OrdersDashboard = () => {
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Customer</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Location</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Order Details</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Time</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Tracking ID</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Status</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Progress</th>
