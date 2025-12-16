@@ -157,6 +157,24 @@ const OrdersDashboard = () => {
     };
   }, []);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      const [ordersRes, statsRes] = await Promise.all([
+        axios.get<Order[]>("https://sugarcontrollerbackend-production.up.railway.app/orders"),
+        axios.get<Stats>("https://sugarcontrollerbackend-production.up.railway.app/stats"),
+      ]);
+      setOrders(ordersRes.data);
+      setStats(statsRes.data);
+    } catch (err) {
+      console.error("Failed to refresh data:", err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const calculateAndSaveStats = async () => {
     const calculatedStats: Stats = {
       liveViews: stats.liveViews,
@@ -215,6 +233,26 @@ const OrdersDashboard = () => {
     }
   };
 
+  const formatOrderTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+  };
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -271,11 +309,12 @@ const OrdersDashboard = () => {
             </div>
             <div className="flex gap-3">
               <button 
-                onClick={calculateAndSaveStats}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-md"
+                onClick={refreshData}
+                disabled={isRefreshing}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-md"
               >
-                <Activity className="w-4 h-4" />
-                Refresh Stats
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
               </button>
               <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-md">
                 <Download className="w-4 h-4" />
@@ -449,7 +488,7 @@ const OrdersDashboard = () => {
               <tbody className="divide-y divide-slate-100">
                 {filteredOrders.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="text-center py-12">
+                    <td colSpan={8} className="text-center py-12">
                       <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-500 font-medium">No orders found</p>
                       <p className="text-gray-400 text-sm">Try adjusting your search or filters</p>
@@ -488,6 +527,21 @@ const OrdersDashboard = () => {
                         <div className="flex flex-col">
                           <span className="text-gray-900 font-medium">Qty: {order.quantity}</span>
                           <span className="text-sm text-gray-500">Rs. {order.total}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-gray-900 font-medium text-sm">
+                            {formatOrderTime(order.orderDate)}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(order.orderDate).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
